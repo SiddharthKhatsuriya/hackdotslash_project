@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="176dp"
+        android:layout_height="287dp"
+        app:srcCompat="@drawable/imagePlaceholder"
+        tools:layout_editor_absoluteX="16dp"
+        tools:layout_editor_absoluteY="71dp" />
+
+    <TextView
+        android:id="@+id/textViewTitle"
+        android:layout_width="165dp"
+        android:layout_height="74dp"
+        android:text="Title"
+        tools:layout_editor_absoluteX="192dp"
+        tools:layout_editor_absoluteY="149dp" />
+
+    <TextView
+        android:id="@+id/textViewDescription"
+        android:layout_width="177dp"
+        android:layout_height="88dp"
+        android:text="Description"
+        tools:layout_editor_absoluteX="191dp"
+        tools:layout_editor_absoluteY="223dp" />
+
+    <ImageButton
+        android:id="@+id/button2"
+        android:layout_width="180dp"
+        android:layout_height="71dp"
+        android:cropToPadding="true"
+        android:adjustViewBounds="false"
+        android:src="@drawable/ic_keyboard_arrow_up_black_24dp"
+        tools:layout_editor_absoluteX="16dp"
+        tools:layout_editor_absoluteY="398dp" />
+
+    <ImageButton
+        android:id="@+id/button5"
+        android:layout_width="180dp"
+        android:layout_height="71dp"
+        android:cropToPadding="true"
+        android:adjustViewBounds="false"
+        android:src="@drawable/ic_keyboard_arrow_down_black_24dp"
+        tools:layout_editor_absoluteX="205dp"
+        tools:layout_editor_absoluteY="402dp" />
+</android.support.constraint.ConstraintLayout>
