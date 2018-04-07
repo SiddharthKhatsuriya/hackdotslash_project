@@ -1,6 +1,7 @@
 import Express from 'express';
 
 import User from './../models/User';
+import AdminCheck from './../middlewares/AdminCheck';
 
 let userRoutes = require('express').Router();
 
@@ -20,15 +21,28 @@ userRoutes.post('/user/register', (req, res) => {
 });
 
 userRoutes.post('/user/login', (req, res) => {
-	User.authenticate(req.body.email, req.body.password, (err, token) => {
+	User.authenticate(req.body.email, req.body.password, (err, id, token) => {
 		if(!err){
-			res.json({success: true, token: token});
+			res.json({success: true, id: id, token: token});
 		}else{
 			res.json({success: false, message: err.message});
 		}
 	});
 });
 
-userRoutes.get('/user/:username/profile', (req, res) => res.json({user: 'true'}));
+userRoutes.get('/user/:id/profile', (req, res) => {
+	User
+		.findOne({
+			_id: req.params.id
+		})
+		.select('-_id -__v -password -complaints -admin')
+		.exec((err, user) => {
+			if(!err && user){
+				res.json({success: true, user: user});
+			}else{
+				res.json({success: false, message: 'user not found'});
+			}
+		});
+});
 
 export default userRoutes;

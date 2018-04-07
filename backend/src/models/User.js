@@ -23,6 +23,7 @@ var userSchema = new Schema({
 		required: [true, 'password is required']
 	},
 	dob: Date,
+	admin: {type: Boolean, default: false},
 	complaints: [{type: Schema.Types.ObjectId, ref: 'Complaint'}]
 });
 
@@ -33,11 +34,12 @@ userSchema.methods.register = function(cb){
 		if(user == null){
 			bcrypt.hash(this.password, 10, (err, hash) => {
 				this.password = hash;
+				this.admin = true;		// <<<<#######################
 				this.save((err) => {
 					if(!err)
 						cb(null);
 					else
-						cb(new Error('something went wrong...'));
+						cb(err);
 				});
 			})
 		}else{
@@ -60,7 +62,7 @@ userSchema.statics.authenticate = function(email, password, cb){
 				let signed = jwt.sign(payload, config.jsonsecret, {
 					expiresIn: 24 * 60 * 60
 				});
-				cb(null, signed);
+				cb(null, user._id, signed);
 			}else{
 				cb(new Error('email/password does not match'));
 			}
