@@ -13,7 +13,7 @@ let categoriesRoutes = require('express').Router();
 categoriesRoutes.get('/complaints/categories/all', (req, res) => {
 	ComplaintCategory
 		.find()
-		.select('-complaints')
+		.select('-complaints -__v')
 		.exec((err, categories) => {
 			if(!err){
 				res.json({success: true, categories: categories});
@@ -34,6 +34,27 @@ categoriesRoutes.post('/complaints/categories/add', [RequireToken, AdminCheck], 
 		else
 			res.json({success: false, message: err.message});
 	});
+});
+
+// params: id
+categoriesRoutes.post('/complaints/categories/:id/delete', [RequireToken, AdminCheck], (req, res) => {
+	ComplaintCategory
+		.findOne({
+			id: req.params.id
+		})
+		.exec((err, category) => {
+			if(!err && category){
+				category.remove((err) => {
+					if(!err){
+						res.json({success: true});
+					}else{
+						res.json({success: false});
+					}
+				});
+			}else{
+				res.json({success: false});
+			}
+		});
 });
 
 export default categoriesRoutes;

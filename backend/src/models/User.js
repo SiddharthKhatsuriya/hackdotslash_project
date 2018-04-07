@@ -22,6 +22,8 @@ var userSchema = new Schema({
 		type: String,
 		required: [true, 'password is required']
 	},
+	watched: [{type: Schema.Types.ObjectId, ref: 'Complaint'}],
+	upvoted: [{type: Schema.Types.ObjectId, ref: 'Complaint'}],
 	dob: Date,
 	admin: {type: Boolean, default: false},
 	complaints: [{type: Schema.Types.ObjectId, ref: 'Complaint'}]
@@ -49,7 +51,7 @@ userSchema.methods.register = function(cb){
 }
 
 
-// cb(err, payload)
+// cb(err, userId, payload)
 userSchema.statics.authenticate = function(email, password, cb){
 	User.findOne({
 		email: email

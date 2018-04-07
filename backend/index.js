@@ -5,6 +5,7 @@ import bodyParser from 'body-parser';
 import config from './src/config';
 import userRoutes from './src/routes/user';
 import complaintRoutes  from './src/routes/complaint';
+import categoriesRoutes from './src/routes/categories';
 
 const app = Express();
 
@@ -35,6 +36,7 @@ app.use(function(req, res, next) {
 app.get('/api', (req, res) => res.json({success: 'true'}));
 app.use('/api', userRoutes);
 app.use('/api', complaintRoutes);
+app.use('/api', categoriesRoutes);
 
 // loading config vars
 app.set('jsonsecret', config.jsonsecret);
