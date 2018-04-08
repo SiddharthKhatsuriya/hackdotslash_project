@@ -22,7 +22,6 @@ public class HomeFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
         getActivity().setTitle(R.string.title_home);
-
         View view = inflater.inflate(R.layout.fragment_home, container, false);
         RecyclerView recyclerView = view.findViewById(R.id.recycler_home);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -36,7 +35,8 @@ public class HomeFragment extends Fragment {
                 getActivity()
                         .getSupportFragmentManager()
                         .beginTransaction()
-                        .add(f, "create")
+                        .add(R.id.frame_layout_main, f)
+                        .addToBackStack("create")
                         .commit();
             }
         });

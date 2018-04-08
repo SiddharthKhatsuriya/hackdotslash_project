@@ -70,7 +70,7 @@ complaintRoutes.post('/complaints/:id/upvote', [RequireToken], (req, res) => {
 		_id: req.params.id
 	}, (err, complaint) => {
 		if(!err && complaint){
-			
+
 		}else{
 			res.json({success: false});
 		}
