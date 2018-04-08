@@ -13,10 +13,12 @@ let complaintRoutes = require('express').Router();
 complaintRoutes.post('/complaints/create', [upload.single('image'), RequireToken], (req, res) => {
 	// lock and load
 	let complaint = new Complaint();
-	complaint.title = req.body.title;
 	complaint.category = req.body.category;
 	complaint.description = req.body.description;
 	complaint.author = req.decoded.userId;
+	complaint.image = req.body.image;
+	complaint.lat = req.body.lat;
+	complaint.lng = req.body.lng;
 	// fire
 	complaint.register((err, c) => {
 		if(!err)
@@ -30,6 +32,10 @@ complaintRoutes.get('/complaints/all', (req, res) => {
 	Complaint
 		.find()
 		.select('-__v')
+		.populate({
+			path: 'author',
+			select: 'fname lname'
+		})
 		.exec((err, complaints) => {
 			if(!err){
 				res.json({success: true, complaints: complaints})

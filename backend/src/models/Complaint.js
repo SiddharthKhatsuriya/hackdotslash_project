@@ -6,10 +6,6 @@ import User from './User';
 
 var Schema = mongoose.Schema;
 var complaintSchema = new Schema({
-	title: {
-		type: String,
-		required: [true, 'title is required']
-	},
 	description: {
 		type: String,
 		required: [true, 'title is required']
@@ -18,8 +14,9 @@ var complaintSchema = new Schema({
 	image: String,
 	category: {type: Schema.Types.ObjectId, ref: 'ComplaintCategory'},
 	votes: {type: Number, default: 0},
+	lat: {type: Number},
+	lng: {type: Number},
 	upvoters: [{type: Schema.Types.ObjectId, ref: 'User'}],
-	downvoters: [{type: Schema.Types.ObjectId, ref: 'User'}],
 	author: {type: Schema.Types.ObjectId, ref: 'User'}
 });
 
