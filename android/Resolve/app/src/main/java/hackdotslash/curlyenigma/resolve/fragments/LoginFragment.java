@@ -61,6 +61,20 @@ public class LoginFragment extends Fragment {
             }
         });
 
+
+        buttonRegister.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Fragment f = new RegisterFragment();
+                getActivity()
+                        .getSupportFragmentManager()
+                        .beginTransaction()
+                        .add(R.id.frame_layout_main, f)
+                        .addToBackStack("register")
+                        .commit();
+            }
+        });
+
         Retrofit retrofit = new Retrofit.Builder()
                 .addConverterFactory(ScalarsConverterFactory.create())
                 .baseUrl(ResolveService.BASE_URL).build();

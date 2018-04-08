@@ -58,7 +58,7 @@ userSchema.statics.authenticate = function(email, password, cb){
 	}, (err, user) => {
 		if(!user && !password)
 			cb(new Error('email/password does not match'));
-		else{
+		else if(user != null){
 			bcrypt.compare(password, user.password, (err, matches) => {
 				if(matches){
 					let payload = {userId: user._id};

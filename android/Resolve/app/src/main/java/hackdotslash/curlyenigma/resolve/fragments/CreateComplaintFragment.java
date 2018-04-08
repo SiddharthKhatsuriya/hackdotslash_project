@@ -61,6 +61,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import hackdotslash.curlyenigma.resolve.MainActivity;
 import hackdotslash.curlyenigma.resolve.R;
 import hackdotslash.curlyenigma.resolve.ResolveService;
 import hackdotslash.curlyenigma.resolve.adapters.HomeAdapter;
@@ -120,6 +121,15 @@ public class CreateComplaintFragment extends Fragment implements OnMapReadyCallb
         map = view.findViewById(R.id.map);
         progressDialog = new ProgressDialog(getContext());
         progressDialog.setCancelable(false);
+
+        Button submitButton = view.findViewById(R.id.buttonSubmit);
+
+        submitButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                submitIssue();
+            }
+        });
 
         File storageDir = getActivity().getExternalCacheDir();
         image = new File(Environment.getExternalStorageDirectory() + "/DCIM/image.png");
@@ -227,7 +237,8 @@ public class CreateComplaintFragment extends Fragment implements OnMapReadyCallb
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.check_menu, menu);
+//        menu.clear();
+//        inflater.inflate(R.menu.check_menu, menu);
     }
 
     @Override
@@ -239,7 +250,7 @@ public class CreateComplaintFragment extends Fragment implements OnMapReadyCallb
                 submitIssue();
                 break;
         }
-        return false;
+        return true;
     }
 
     private void submitIssue() {
@@ -256,7 +267,9 @@ public class CreateComplaintFragment extends Fragment implements OnMapReadyCallb
                 try {
                     JSONObject data = new JSONObject(response.body().toString());
                     if(data.getBoolean("success")){
-                        Snackbar.make(getView(), "Issue added successfully...", Snackbar.LENGTH_SHORT).show();
+                        Intent intent = new Intent(getContext(), MainActivity.class);
+                        startActivity(intent);
+                        getActivity().finish();
                     }else{
                         Snackbar.make(getView(), "Please trying again...", Snackbar.LENGTH_SHORT).show();
                     }

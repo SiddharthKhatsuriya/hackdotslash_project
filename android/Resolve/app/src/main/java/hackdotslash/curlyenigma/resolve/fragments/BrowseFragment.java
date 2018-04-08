@@ -1,13 +1,18 @@
 package hackdotslash.curlyenigma.resolve.fragments;
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
@@ -53,6 +58,7 @@ public class BrowseFragment extends Fragment implements OnMapReadyCallback {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
         getActivity().setTitle(R.string.title_map);
+        setHasOptionsMenu(true);
         if(container != null)
             container.removeAllViews();
         hashMap = new HashMap<>();
@@ -164,5 +170,33 @@ public class BrowseFragment extends Fragment implements OnMapReadyCallback {
                 return false;
             }
         });
+    }
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.logout, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()){
+            case R.id.logout_item:
+                SharedPreferences preferences = getActivity().getPreferences(Context.MODE_PRIVATE);
+                SharedPreferences.Editor editor = preferences.edit();
+                editor.putString("token", "");
+                editor.commit();
+                getActivity().finish();
+                break;
+            case R.id.register_item:
+
+                Fragment f = new CreateComplaintFragment();
+                getActivity()
+                        .getSupportFragmentManager()
+                        .beginTransaction()
+                        .add(R.id.frame_layout_main, f)
+                        .addToBackStack("create")
+                        .commit();
+                break;
+        }
+        return true;
     }
 }

@@ -18,7 +18,7 @@ public interface ResolveService {
     Call<String> authenticate(@Field("email") String email, @Field("password") String password);
 
     @FormUrlEncoded
-    @POST("user/login")
+    @POST("user/register")
     Call<String> register(
             @Field("fname") String fname,
             @Field("lname") String lname,

@@ -1,9 +1,12 @@
 package hackdotslash.curlyenigma.resolve;
 
 import android.app.Fragment;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.FrameLayout;
 
 import hackdotslash.curlyenigma.resolve.fragments.BrowseFragment;
@@ -35,5 +38,13 @@ public class MainActivity extends AppCompatActivity {
                     .add(R.id.frame_layout_main, f)
                     .commit();
         }
+    }
+
+    @Override
+    public void onBackPressed(){
+
+        Intent intent = new Intent(MainActivity.this, MainActivity.class);
+        startActivity(intent);
+        finish();
     }
 }
