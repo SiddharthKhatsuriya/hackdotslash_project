@@ -28,8 +28,16 @@ public interface ResolveService {
     @GET("complaints/categories/all")
     Call<String> categories();
 
-    @Multipart
+    @GET("complaints/all")
+    Call<String> complaints();
+
+    @FormUrlEncoded
     @POST("complaints/create")
     Call<String> createComplaint(
-            @Part MultipartBody.Part image);
+            @Field("category") String category,
+            @Field("description") String description,
+            @Field("image") String image,
+            @Field("token") String token,
+            @Field("lat") double lat,
+            @Field("lng") double lng);
 }

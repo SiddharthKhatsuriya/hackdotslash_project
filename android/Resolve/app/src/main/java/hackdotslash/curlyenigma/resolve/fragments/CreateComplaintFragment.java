@@ -1,10 +1,17 @@
 package hackdotslash.curlyenigma.resolve.fragments;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -16,6 +23,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.content.FileProvider;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -24,16 +32,26 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
+import android.widget.TextView;
 import android.widget.Toast;
+
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -47,6 +65,7 @@ import hackdotslash.curlyenigma.resolve.R;
 import hackdotslash.curlyenigma.resolve.ResolveService;
 import hackdotslash.curlyenigma.resolve.adapters.HomeAdapter;
 import hackdotslash.curlyenigma.resolve.models.Category;
+import hackdotslash.curlyenigma.resolve.utils.Utility;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
@@ -58,10 +77,10 @@ import retrofit2.converter.scalars.ScalarsConverterFactory;
 
 import static android.app.Activity.RESULT_OK;
 
-public class CreateComplaintFragment extends Fragment {
-    static final int REQUEST_IMAGE_CAPTURE = 1;
-    static final int PICK_PHOTO_FOR_AVATAR = 2;
-    ImageView thumbnail;
+public class CreateComplaintFragment extends Fragment implements OnMapReadyCallback,
+        GoogleMap.OnMarkerDragListener{
+
+    ImageView img;
     private ResolveService service;
     private EditText editTextDescription, editTextLocation;
     private ProgressDialog progressDialog;
@@ -69,6 +88,19 @@ public class CreateComplaintFragment extends Fragment {
     private List<Category> categoryList;
     private String currentPath;
     private File image;
+
+    Marker myMarker;
+    private GoogleMap mMap;
+    private android.location.LocationManager locationManager;
+    private TextView locinfo;
+    private Button map, closeMapDialog;
+
+    LatLng issueLoc;
+
+    private int REQUEST_CAMERA = 0, SELECT_FILE = 1;
+    private String userChoosenTask;
+
+    private String imgStr;
 
     @Nullable
     @Override
@@ -81,23 +113,17 @@ public class CreateComplaintFragment extends Fragment {
 
         View view = inflater.inflate(R.layout.fragment_create_complaint, container, false);
 
-        thumbnail = view.findViewById(R.id.thumbnail);
+        img = view.findViewById(R.id.thumbnail);
         spinner = view.findViewById(R.id.spinner_category);
         editTextDescription = view.findViewById(R.id.editTextDescription);
         editTextLocation = view.findViewById(R.id.editTextLocation);
+        map = view.findViewById(R.id.map);
         progressDialog = new ProgressDialog(getContext());
         progressDialog.setCancelable(false);
 
         File storageDir = getActivity().getExternalCacheDir();
         image = new File(Environment.getExternalStorageDirectory() + "/DCIM/image.png");
         currentPath = image.getAbsolutePath();
-
-        thumbnail.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                dispatchTakePictureIntent();
-            }
-        });
 
         Retrofit retrofit = new Retrofit.Builder()
                 .addConverterFactory(ScalarsConverterFactory.create())
@@ -106,7 +132,42 @@ public class CreateComplaintFragment extends Fragment {
 
         fetchCategories();
 
+        map.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final Dialog dialog = new Dialog(getContext(),android.R.style.Theme_Black_NoTitleBar_Fullscreen);
+                dialog.setContentView(R.layout.mapsdialog);
+                locinfo = dialog.findViewById(R.id.locinfo);
+                dialog.setTitle("Long press on the maps to add a marker. Long press on the marker to change location");
+                initializeMap();
+                closeMapDialog = dialog.findViewById(R.id.close);
+                closeMapDialog.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        dialog.dismiss();
+                        map.setText("Location recorded");
+                    }
+                });
+                dialog.show();
+            }
+        });
+
+        img.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                selectImage();
+            }
+        });
+
         return view;
+    }
+
+    private void initializeMap() {
+        locationManager = (LocationManager) getActivity().getSystemService(getContext().LOCATION_SERVICE);
+
+        SupportMapFragment mapFragment = (SupportMapFragment) getActivity().getSupportFragmentManager()
+                .findFragmentById(R.id.map);
+        mapFragment.getMapAsync(this);
     }
 
     @Override
@@ -115,22 +176,13 @@ public class CreateComplaintFragment extends Fragment {
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
-            Bundle extras = data.getExtras();
-            Bitmap imageBitmap = (Bitmap) extras.get("data");
-            thumbnail.setImageBitmap(imageBitmap);
-        }else if (requestCode == PICK_PHOTO_FOR_AVATAR && resultCode == Activity.RESULT_OK) {
-            if (data == null) {
-                //Display an error
-                return;
-            }
-            try {
-                image = new File(getActivity().getRea);
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (resultCode == Activity.RESULT_OK) {
+            if (requestCode == SELECT_FILE)
+                onSelectFromGalleryResult(data);
+            else if (requestCode == REQUEST_CAMERA)
+                onCaptureImageResult(data);
         }
     }
 
@@ -155,7 +207,6 @@ public class CreateComplaintFragment extends Fragment {
                         SpinnerAdapter adapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_dropdown_item_1line, items);
                         spinner.setAdapter(adapter);
                         progressDialog.hide();
-                        dispatchTakePictureIntent();
                     }else{
                         getActivity().finish();
                     }
@@ -173,18 +224,6 @@ public class CreateComplaintFragment extends Fragment {
         });
     }
 
-    private void dispatchTakePictureIntent() {
-//        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-//        if (takePictureIntent.resolveActivity(getActivity().getPackageManager()) != null) {
-////            Uri photoUri = FileProvider.getUriForFile(getContext(), "hackdotslash.curlyenigma.resolve.files", image);
-////            takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri);
-//            startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
-//        }
-        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-        intent.setType("image/*");
-        startActivityForResult(intent, PICK_PHOTO_FOR_AVATAR);
-
-    }
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
@@ -207,27 +246,24 @@ public class CreateComplaintFragment extends Fragment {
         progressDialog.setMessage("Submitting complaint...");
         progressDialog.show();
         String description = editTextDescription.getText().toString();
-        // WARNING: currently using location as title
-        String location = editTextLocation.getText().toString();
         String category = categoryList.get(spinner.getSelectedItemPosition()).getId();
-        MultipartBody.Part filePart = MultipartBody.Part.createFormData("image", image.getName(), RequestBody.create(MediaType.parse("image/*"), image));
-        MultipartBody.Part dataPart = MultipartBody.Part.createFormData("title", location);
-        MultipartBody.Part dataDescription = MultipartBody.Part.createFormData("description", description);
-        MultipartBody.Part dataCategory = MultipartBody.Part.createFormData("category", category);
-        Call<String> call = service.createComplaint(filePart);
+        SharedPreferences preferences = getActivity().getPreferences(Context.MODE_PRIVATE);
+        String token = preferences.getString("token", "");
+        Call<String> call = service.createComplaint(category, description, imgStr, token, issueLoc.latitude, issueLoc.longitude);
         call.enqueue(new Callback<String>() {
             @Override
             public void onResponse(Call<String> call, Response<String> response) {
                 try {
                     JSONObject data = new JSONObject(response.body().toString());
                     if(data.getBoolean("success")){
-                        Snackbar.make(getView(), "Complaint registered successfully...", Snackbar.LENGTH_SHORT).show();
+                        Snackbar.make(getView(), "Issue added successfully...", Snackbar.LENGTH_SHORT).show();
                     }else{
-                        Snackbar.make(getView(), "Please try again...", Snackbar.LENGTH_SHORT).show();
+                        Snackbar.make(getView(), "Please trying again...", Snackbar.LENGTH_SHORT).show();
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
+
                 progressDialog.hide();
             }
 
@@ -237,5 +273,140 @@ public class CreateComplaintFragment extends Fragment {
                 progressDialog.hide();
             }
         });
+    }
+
+    @Override
+    public void onMarkerDragStart(Marker marker) {
+        locinfo.setText(marker.getPosition().latitude+", "+marker.getPosition().longitude);
+    }
+
+    @Override
+    public void onMarkerDrag(Marker marker) {
+        locinfo.setText(marker.getPosition().latitude+", "+marker.getPosition().longitude);
+    }
+
+    @Override
+    public void onMarkerDragEnd(Marker marker) {
+        locinfo.setText(marker.getPosition().latitude+", "+marker.getPosition().longitude);
+        issueLoc = new LatLng(myMarker.getPosition().latitude,myMarker.getPosition().longitude);
+    }
+
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        mMap = googleMap;
+        mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
+            @Override
+            public void onMapLongClick(LatLng latLng) {
+                if (myMarker == null) {
+
+                    // Marker was not set yet. Add marker:
+                    myMarker = mMap.addMarker(new MarkerOptions()
+                            .position(latLng)
+                            .title("Your marker title")
+                            .snippet("Your marker snippet"));
+                    locinfo.setText(myMarker.getPosition().latitude+", "+myMarker.getPosition().longitude);
+                    issueLoc = new LatLng(myMarker.getPosition().latitude,myMarker.getPosition().longitude);
+                    myMarker.setDraggable(true);
+
+                }
+                else {
+
+                    // Marker already exists, just update it's position
+                    myMarker.setPosition(latLng);
+                    locinfo.setText(myMarker.getPosition().latitude+", "+myMarker.getPosition().longitude);
+                    issueLoc = new LatLng(myMarker.getPosition().latitude,myMarker.getPosition().longitude);
+
+                }
+            }
+        });
+        googleMap.setOnMarkerDragListener(this);
+        try {
+            googleMap.setMyLocationEnabled(true);
+        } catch (SecurityException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        switch (requestCode) {
+            case Utility.MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    if(userChoosenTask.equals("Take Photo"))
+                        cameraIntent();
+                    else if(userChoosenTask.equals("Choose from Library"))
+                        galleryIntent();
+                } else {
+                    //code for deny
+                }
+                break;
+        }
+    }
+
+    private void selectImage() {
+        final CharSequence[] items = { "Take Photo", "Choose from Library",
+                "Cancel" };
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        builder.setTitle("Add Photo!");
+        builder.setItems(items, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int item) {
+                boolean result= Utility.checkPermission(getContext());
+
+                if (items[item].equals("Take Photo")) {
+                    userChoosenTask ="Take Photo";
+                    if(result)
+                        cameraIntent();
+
+                } else if (items[item].equals("Choose from Library")) {
+                    userChoosenTask ="Choose from Library";
+                    if(result)
+                        galleryIntent();
+
+                } else if (items[item].equals("Cancel")) {
+                    dialog.dismiss();
+                }
+            }
+        });
+        builder.show();
+    }
+
+    private void galleryIntent()
+    {
+        Intent intent = new Intent();
+        intent.setType("image/*");
+        intent.setAction(Intent.ACTION_GET_CONTENT);//
+        startActivityForResult(Intent.createChooser(intent, "Select File"),SELECT_FILE);
+    }
+
+    private void cameraIntent()
+    {
+        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        startActivityForResult(intent, REQUEST_CAMERA);
+    }
+
+    private void onCaptureImageResult(Intent data) {
+        Bitmap thumbnail = (Bitmap) data.getExtras().get("data");
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        thumbnail.compress(Bitmap.CompressFormat.JPEG,100,bytes);
+        byte[] imgBytes = bytes.toByteArray();
+        imgStr = Base64.encodeToString(imgBytes,Base64.DEFAULT);
+        Log.d("XXX", imgStr);
+        img.setImageBitmap(thumbnail);
+    }
+
+    private void onSelectFromGalleryResult(Intent data) {
+
+        Bitmap bm=null;
+        if (data != null) {
+            try {
+                bm = MediaStore.Images.Media.getBitmap(getContext().getContentResolver(), data.getData());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        img.setImageBitmap(bm);
     }
 }

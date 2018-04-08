@@ -6,6 +6,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.FrameLayout;
 
+import hackdotslash.curlyenigma.resolve.fragments.BrowseFragment;
 import hackdotslash.curlyenigma.resolve.fragments.HomeFragment;
 import hackdotslash.curlyenigma.resolve.fragments.LoginFragment;
 
@@ -27,10 +28,11 @@ public class MainActivity extends AppCompatActivity {
                     .add(R.id.frame_layout_main, fragmentLogin)
                     .commit();
         }else{
-            HomeFragment homeFragment = new HomeFragment();
+//            HomeFragment homeFragment = new HomeFragment();
+            BrowseFragment f = new BrowseFragment();
             getSupportFragmentManager()
                     .beginTransaction()
-                    .add(R.id.frame_layout_main, homeFragment)
+                    .add(R.id.frame_layout_main, f)
                     .commit();
         }
     }
