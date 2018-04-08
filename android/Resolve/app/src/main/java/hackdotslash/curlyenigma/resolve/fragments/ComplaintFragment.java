@@ -40,13 +40,13 @@ public class ComplaintFragment extends Fragment {
         getActivity().setTitle(R.string.title_home);
         if(container != null)
             container.removeAllViews();
-        View view = inflater.inflate(R.layout.fragment_home, container, false);
+        View view = inflater.inflate(R.layout.fragment_complaint, container, false);
         Bundle args = getArguments();
         id = args.getString("id");
 
         progressDialog = new ProgressDialog(getContext());
         progressDialog.setCancelable(false);
-        textViewDescription = view.findViewById(R.id.textViewDescription);;
+        textViewDescription = view.findViewById(R.id.textViewDescription);
 
         Retrofit retrofit = new Retrofit.Builder()
                 .addConverterFactory(ScalarsConverterFactory.create())

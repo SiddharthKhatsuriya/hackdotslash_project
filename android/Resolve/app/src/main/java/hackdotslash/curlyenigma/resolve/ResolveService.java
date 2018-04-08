@@ -32,7 +32,7 @@ public interface ResolveService {
     @GET("complaints/all")
     Call<String> complaints();
 
-    @GET("complaint/{id}/details")
+    @GET("complaints/{id}/details")
     Call<String> complaint(@Path("id") String id);
 
     @FormUrlEncoded
