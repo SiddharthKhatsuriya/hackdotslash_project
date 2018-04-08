@@ -12,6 +12,7 @@ public class Complaint {
     private String image;
     private String authorId, id;
     private User author;
+    private Category category;
     private double lat, lng;
 
 
@@ -31,6 +32,13 @@ public class Complaint {
         this.authorId = authorId;
     }
 
+    public Category getCategory() {
+        return category;
+    }
+
+    public void setCategory(Category category) {
+        this.category = category;
+    }
 
     public User getAuthor() {
         return author;
@@ -82,6 +90,9 @@ public class Complaint {
             c.setLng(lng);
             c.setDescription(complaint.getString("description"));
             User user = User.fromJSON(complaint.getJSONObject("author"));
+            c.setAuthor(user);
+            Category cat = Category.fromJSON(complaint.getJSONObject("category"));
+            c.setCategory(cat);
             c.setImage(complaint.getString("image"));
         } catch (JSONException e) {
             e.printStackTrace();

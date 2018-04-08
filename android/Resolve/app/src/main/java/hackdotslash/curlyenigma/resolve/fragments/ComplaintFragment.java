@@ -1,6 +1,9 @@
 package hackdotslash.curlyenigma.resolve.fragments;
 
 import android.app.ProgressDialog;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.media.Image;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
@@ -8,9 +11,12 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import org.json.JSONException;
@@ -32,7 +38,10 @@ public class ComplaintFragment extends Fragment {
     private String id;
     private ProgressDialog progressDialog;
     private Complaint complaint;
-    private TextView textViewDescription;
+    private TextView textViewDescription, textViewAuthor, textViewCategory;
+    private ImageView imageViewComplaint;
+    private ListView listViewComments;
+
 
     @Nullable
     @Override
@@ -47,6 +56,10 @@ public class ComplaintFragment extends Fragment {
         progressDialog = new ProgressDialog(getContext());
         progressDialog.setCancelable(false);
         textViewDescription = view.findViewById(R.id.textViewDescription);
+        textViewAuthor = view.findViewById(R.id.textViewAuthor);
+        textViewCategory = view.findViewById(R.id.textViewCategory);
+        imageViewComplaint = view.findViewById(R.id.imageViewComplaint);
+        listViewComments = view.findViewById(R.id.listViewComments);
 
         Retrofit retrofit = new Retrofit.Builder()
                 .addConverterFactory(ScalarsConverterFactory.create())
@@ -77,8 +90,6 @@ public class ComplaintFragment extends Fragment {
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-
-                Snackbar.make(getView(), "Please try again...", Snackbar.LENGTH_SHORT).show();
                 progressDialog.hide();
             }
 
@@ -91,6 +102,11 @@ public class ComplaintFragment extends Fragment {
     }
 
     private void updateViews() {
-        textViewDescription.setText(complaint.getDescription());
+        textViewCategory.setText(complaint.getCategory().getTitle());
+        textViewDescription.setText("Description:\n"+complaint.getDescription());
+        textViewAuthor.setText("Submitted By: "+complaint.getAuthor().getFname());
+        byte[] decodedString = Base64.decode(complaint.getImage(),Base64.DEFAULT);
+        Bitmap complaintImage = BitmapFactory.decodeByteArray(decodedString,0,decodedString.length);
+        imageViewComplaint.setImageBitmap(complaintImage);
     }
 }
