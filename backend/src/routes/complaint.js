@@ -31,7 +31,7 @@ complaintRoutes.post('/complaints/create', [upload.single('image'), RequireToken
 complaintRoutes.get('/complaints/all', (req, res) => {
 	Complaint
 		.find()
-		.select('-__v')
+		.select('-__v -image')
 		.populate({
 			path: 'author',
 			select: 'fname lname'
@@ -64,6 +64,10 @@ complaintRoutes.get('/complaints/:id/details', (req, res) => {
 			_id: req.params.id
 		})
 		.select('-__v')
+		.populate({
+			path: 'author',
+			select: 'fname lname'
+		})
 		.exec((err, c) => {
 			if(!err && c)
 				res.json({success: true, complaint: c});

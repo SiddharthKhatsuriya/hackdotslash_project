@@ -9,6 +9,7 @@ import retrofit2.http.GET;
 import retrofit2.http.Multipart;
 import retrofit2.http.POST;
 import retrofit2.http.Part;
+import retrofit2.http.Path;
 
 public interface ResolveService {
     public String BASE_URL = "http://192.168.43.126:3000/api/";
@@ -30,6 +31,9 @@ public interface ResolveService {
 
     @GET("complaints/all")
     Call<String> complaints();
+
+    @GET("complaint/{id}/details")
+    Call<String> complaint(@Path("id") String id);
 
     @FormUrlEncoded
     @POST("complaints/create")
