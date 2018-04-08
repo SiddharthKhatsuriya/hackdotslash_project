@@ -59,7 +59,7 @@ public class ComplaintFragment extends Fragment {
         textViewAuthor = view.findViewById(R.id.textViewAuthor);
         textViewCategory = view.findViewById(R.id.textViewCategory);
         imageViewComplaint = view.findViewById(R.id.imageViewComplaint);
-        listViewComments = view.findViewById(R.id.listViewComments);
+//        listViewComments = view.findViewById(R.id.listViewComments);
 
         Retrofit retrofit = new Retrofit.Builder()
                 .addConverterFactory(ScalarsConverterFactory.create())
