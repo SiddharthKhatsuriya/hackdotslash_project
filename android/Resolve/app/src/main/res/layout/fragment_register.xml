@@ -45,14 +45,6 @@
             android:inputType="textEmailAddress|textPersonName" />
 
         <EditText
-            android:id="@+id/editTextContact"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:ems="10"
-            android:hint="Contact Number"
-            android:inputType="phone" />
-
-        <EditText
             android:id="@+id/editTextPassword"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -68,26 +60,9 @@
             android:hint="Confirm Password"
             android:inputType="textPassword" />
 
-        <EditText
-            android:id="@+id/editTextAddress"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:ems="10"
-            android:hint="Address"
-            android:inputType="textMultiLine"
-            android:singleLine="false" />
-
-        <EditText
-            android:id="@+id/editTextDOB"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:ems="10"
-            android:hint="Date Of Birth"
-            android:inputType="date" />
-
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:orientation="horizontal">
 
             <CheckBox
@@ -96,12 +71,19 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="I have read and accept all" />
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
             android:text="Terms and Conditions           "
                 android:textColor="@color/colorPrimary"/>
         </LinearLayout>
+
+        <Button
+            android:id="@+id/button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Register" />
 
     </LinearLayout>
 </android.support.constraint.ConstraintLayout>

@@ -1,5 +1,8 @@
 import RequireToken from './../middlewares/RequireToken';
 
+var multer  = require('multer')
+var upload = multer({ dest: 'uploads/' })
+
 import User from './../models/User';
 import Complaint from './../models/Complaint';
 
@@ -7,7 +10,7 @@ let complaintRoutes = require('express').Router();
 
 
 // params: title, category(id), description
-complaintRoutes.post('/complaints/create', [RequireToken], (req, res) => {
+complaintRoutes.post('/complaints/create', [upload.single('image'), RequireToken], (req, res) => {
 	// lock and load
 	let complaint = new Complaint();
 	complaint.title = req.body.title;

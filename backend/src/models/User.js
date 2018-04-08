@@ -56,19 +56,21 @@ userSchema.statics.authenticate = function(email, password, cb){
 	User.findOne({
 		email: email
 	}, (err, user) => {
-		if(!user)
+		if(!user && !password)
 			cb(new Error('email/password does not match'));
-		bcrypt.compare(password, user.password, (err, matches) => {
-			if(matches){
-				let payload = {userId: user._id};
-				let signed = jwt.sign(payload, config.jsonsecret, {
-					expiresIn: 24 * 60 * 60
-				});
-				cb(null, user._id, signed);
-			}else{
-				cb(new Error('email/password does not match'));
-			}
-		})
+		else{
+			bcrypt.compare(password, user.password, (err, matches) => {
+				if(matches){
+					let payload = {userId: user._id};
+					let signed = jwt.sign(payload, config.jsonsecret, {
+						expiresIn: 24 * 60 * 60
+					});
+					cb(null, user._id, signed);
+				}else{
+					cb(new Error('email/password does not match'));
+				}
+			});
+		}
 	})
 }
 

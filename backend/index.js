@@ -24,7 +24,7 @@ let unless = function(path, middleware) {
 
 // parsing params from body
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json()); // for parsing application/json
+app.use(unless('/api/complaints/create', bodyParser.json())); // for parsing application/json
 
 // allow remote origin
 app.use(function(req, res, next) {

@@ -38,14 +38,14 @@
                     android:layout_marginTop="8dp">
 
                     <EditText
-                        android:id="@+id/editText2"
+                        android:id="@+id/editTextLocation"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:enabled="false"
                         android:layout_weight="1.8"
                         android:ems="10"
+                        android:textColor="@color/primary_text"
                         android:inputType="text"
-                        android:hint="Location"/>
+                        android:hint="Title"/>
 
                 </android.support.design.widget.TextInputLayout>
             </LinearLayout>
@@ -53,21 +53,34 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:orientation="vertical"
             android:layout_marginTop="8dp">
 
             <android.support.design.widget.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
                 <EditText
-                    android:id="@+id/editTextPassword"
+                    android:id="@+id/editTextDescription"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="Description"
-                    android:textColor="@color/icons"
+                    android:textColor="@color/primary_text"
                     android:ems="10"
                     android:inputType="textMultiLine" />
 
             </android.support.design.widget.TextInputLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:textColor="@color/colorAccent"
+                android:text="Category"/>
+
+            <Spinner
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/spinner_category" />
         </LinearLayout>
     </LinearLayout>
 </android.support.constraint.ConstraintLayout>
