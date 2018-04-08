@@ -6,6 +6,7 @@ import config from './src/config';
 import userRoutes from './src/routes/user';
 import complaintRoutes  from './src/routes/complaint';
 import categoriesRoutes from './src/routes/categories';
+import commentsRoutes from './src/routes/comments';
 
 const app = Express();
 
@@ -37,6 +38,7 @@ app.get('/api', (req, res) => res.json({success: 'true'}));
 app.use('/api', userRoutes);
 app.use('/api', complaintRoutes);
 app.use('/api', categoriesRoutes);
+app.use('/api', commentsRoutes);
 
 // loading config vars
 app.set('jsonsecret', config.jsonsecret);

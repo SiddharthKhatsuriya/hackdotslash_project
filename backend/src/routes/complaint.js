@@ -36,6 +36,10 @@ complaintRoutes.get('/complaints/all', (req, res) => {
 			path: 'author',
 			select: 'fname lname'
 		})
+		.populate({
+			path: 'category',
+			select: 'title'
+		})
 		.exec((err, complaints) => {
 			if(!err){
 				res.json({success: true, complaints: complaints})
@@ -67,6 +71,10 @@ complaintRoutes.get('/complaints/:id/details', (req, res) => {
 		.populate({
 			path: 'author',
 			select: 'fname lname'
+		})
+		.populate({
+			path: 'category',
+			select: 'title'
 		})
 		.exec((err, c) => {
 			if(!err && c)

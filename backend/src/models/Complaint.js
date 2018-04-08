@@ -17,6 +17,7 @@ var complaintSchema = new Schema({
 	lat: {type: Number},
 	lng: {type: Number},
 	upvoters: [{type: Schema.Types.ObjectId, ref: 'User'}],
+	comments: [{type: Schema.Types.ObjectId, ref: 'Comment'}],
 	author: {type: Schema.Types.ObjectId, ref: 'User'}
 });
 
