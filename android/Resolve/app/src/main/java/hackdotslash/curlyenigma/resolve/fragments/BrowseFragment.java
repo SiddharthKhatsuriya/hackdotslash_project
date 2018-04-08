@@ -151,7 +151,15 @@ public class BrowseFragment extends Fragment implements OnMapReadyCallback {
         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker) {
-                Toast.makeText(getContext(), hashMap.get(marker), Toast.LENGTH_SHORT).show();
+                Bundle bundle = new Bundle();
+                bundle.putString("id", hashMap.get(marker));
+                Fragment f = new ComplaintFragment();
+                f.setArguments(bundle);
+                getActivity()
+                        .getSupportFragmentManager()
+                        .beginTransaction()
+                        .add(R.id.frame_layout_main, f)
+                        .commit();
                 return false;
             }
         });

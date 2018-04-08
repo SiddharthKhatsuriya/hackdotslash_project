@@ -21,24 +21,7 @@ public class ComplaintFragment extends Fragment {
         getActivity().setTitle(R.string.title_home);
         if(container != null)
             container.removeAllViews();
-        View view = inflater.inflate(R.layout.fragment_home, container, false);
-        RecyclerView recyclerView = view.findViewById(R.id.recycler_home);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        recyclerView.setAdapter(new HomeAdapter());
-
-        FloatingActionButton fab = view.findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Fragment f = new CreateComplaintFragment();
-                getActivity()
-                        .getSupportFragmentManager()
-                        .beginTransaction()
-                        .add(R.id.frame_layout_main, f)
-                        .addToBackStack("create")
-                        .commit();
-            }
-        });
+        View view = inflater.inflate(R.layout.fragment_complaint, container, false);
 
         return view;
     }
